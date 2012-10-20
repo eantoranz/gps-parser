@@ -1,5 +1,9 @@
 package gps;
 
+/*
+ * Copyright 2012 Edmundo Carmona Antoranz <eantoranz@gmail.com>
+ * All rights reserved
+ */
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.NoSuchPortException;
@@ -10,12 +14,20 @@ import gnu.io.UnsupportedCommOperationException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.TooManyListenersException;
 
 public class GpsDriver {
 
 	private SerialPort port;
 	private BufferedReader input;
+
+	private HashMap<Integer, Satellite> satellites = new HashMap<Integer, Satellite>();
+	/**
+	 * Used when refreshing information about satellites to be able to tell
+	 * which are new and which are out of sight
+	 */
+	private HashMap<Integer, Boolean> satellitesInView = new HashMap<Integer, Boolean>();
 
 	public GpsDriver(String device, int speed) throws NoSuchPortException,
 			PortInUseException, IOException, UnsupportedCommOperationException,
@@ -59,7 +71,8 @@ public class GpsDriver {
 		}
 		int checksumPos = inputLine.indexOf('*');
 		if (checksumPos != -1) {
-			// FIXME has checksum, let's check it.... but, for now, let's just strip it
+			// FIXME has checksum, let's check it.... but, for now, let's just
+			// strip it
 			inputLine = inputLine.substring(0, checksumPos);
 		}
 
@@ -78,16 +91,31 @@ public class GpsDriver {
 			System.out.println("GPGSV (Satellites in view)");
 			System.err.println(inputLine);
 			System.out.println("\tLine " + fields[2] + " of " + fields[1]);
+			if (fields[2].equals("1")) {
+				// it's the first line, let's update satellitesInSight
+				satellitesInView.clear();
+			}
 			System.out.println("\tSatellites in view: " + fields[3]);
 			// how many satellites are in the line?
 			int numberOfSatellites = (fields.length - 4) / 4;
 			System.out.println("\tThis line includes " + numberOfSatellites
 					+ " satellites");
+			int prn = -1;
+			int elevation = -1;
+			int azimuth = -1;
+			int snr = -1; // no signal
 			for (int i = 0; i < numberOfSatellites; i++) {
-				System.out.println("\tSatellite PRN: " + fields[3 + (i * 4) + 1]);
-				System.out.println("\t\tElevation: " + fields[3 + (i * 4) + 2] + "°");
-				System.out.println("\t\tAzimuth: " + fields[3 + (i * 4) + 3] + "°");
-				System.out.println("\t\tSNR: " + fields[3 + (i + 1 ) * 4] + " db");
+				int fieldIndex = 3 + (i * 4) + 1;
+				prn = Integer.parseInt(fields[fieldIndex++]);
+				elevation = Integer.parseInt(fields[fieldIndex++]);
+				azimuth = Integer.parseInt(fields[fieldIndex++]);
+				snr = fields[fieldIndex].length() == 0 ? -1 : Integer
+						.parseInt(fields[fieldIndex]);
+				System.out.println("\tSatellite PRN: " + prn);
+				System.out.println("\t\tElevation: " + elevation + "°");
+				System.out.println("\t\tAzimuth: " + azimuth + "°");
+				System.out.println("\t\tSNR: "
+						+ (snr == -1 ? "-" : (snr + " db")));
 			}
 		} else if (fields[0].equals("GPRMC")) {
 			System.out.println("GPRMC (Recommended Minimum)");
