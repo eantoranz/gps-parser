@@ -14,7 +14,9 @@ import gnu.io.UnsupportedCommOperationException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.TooManyListenersException;
 
 public class GpsDriver {
@@ -27,7 +29,7 @@ public class GpsDriver {
 	 * Used when refreshing information about satellites to be able to tell
 	 * which are new and which are out of sight
 	 */
-	private HashMap<Integer, Boolean> satellitesInView = new HashMap<Integer, Boolean>();
+	private ArrayList<Satellite> satellitesInView = new ArrayList<Satellite>();
 
 	public GpsDriver(String device, int speed) throws NoSuchPortException,
 			PortInUseException, IOException, UnsupportedCommOperationException,
@@ -92,23 +94,29 @@ public class GpsDriver {
 			System.err.println(inputLine);
 			System.out.println("\tLine " + fields[2] + " of " + fields[1]);
 			if (fields[2].equals("1")) {
-				// it's the first line, let's update satellitesInSight
+				// it's the first line, let's clear/update satellitesInView
 				satellitesInView.clear();
 			}
 			System.out.println("\tSatellites in view: " + fields[3]);
 			// how many satellites are in the line?
-			int numberOfSatellites = (fields.length - 4) / 4;
-			System.out.println("\tThis line includes " + numberOfSatellites
-					+ " satellites");
-			int prn = -1;
-			int elevation = -1;
-			int azimuth = -1;
-			int snr = -1; // no signal
-			for (int i = 0; i < numberOfSatellites; i++) {
+			int numberOfSatellitesInLine = (fields.length - 4) / 4;
+			System.out.println("\tThis line includes "
+					+ numberOfSatellitesInLine + " satellites");
+			Satellite satellite = null;
+			for (int i = 0; i < numberOfSatellitesInLine; i++) {
+				int prn = -1;
+				int elevation = -1;
+				int azimuth = -1;
+				int snr = -1; // no signal
+				satellite = null;
 				int fieldIndex = 3 + (i * 4) + 1;
 				prn = Integer.parseInt(fields[fieldIndex++]);
-				elevation = Integer.parseInt(fields[fieldIndex++]);
-				azimuth = Integer.parseInt(fields[fieldIndex++]);
+				elevation = fields[fieldIndex].length() == 0 ? -1 : Integer
+						.parseInt(fields[fieldIndex]);
+				fieldIndex++;
+				azimuth = fields[fieldIndex].length() == 0 ? -1 : Integer
+						.parseInt(fields[fieldIndex]);
+				fieldIndex++;
 				snr = fields[fieldIndex].length() == 0 ? -1 : Integer
 						.parseInt(fields[fieldIndex]);
 				System.out.println("\tSatellite PRN: " + prn);
@@ -116,6 +124,42 @@ public class GpsDriver {
 				System.out.println("\t\tAzimuth: " + azimuth + "°");
 				System.out.println("\t\tSNR: "
 						+ (snr == -1 ? "-" : (snr + " db")));
+
+				// satellite is obviously <b>in view</b>, right?
+				// if it's a new satellite, let's put it in the satellite map
+				// right away
+				satellite = satellites.get(prn);
+				if (satellite == null) {
+					satellite = new Satellite(prn, elevation, azimuth, snr,
+							true);
+					satellites.put(prn, satellite);
+				} else {
+					// let's update it
+					satellite.refresh(elevation, azimuth, snr, true);
+				}
+
+				satellitesInView.add(satellite);
+			}
+
+			// if it's the very last line, let's set satellites not in sight to
+			// (not in sight)
+			if (fields[2].equals(fields[1])) {
+				// satellites that are inview but are int in satellitesInView
+				// will be set
+				// as not in view
+				Iterator<Satellite> sats = satellites.values().iterator();
+				while (sats.hasNext()) {
+					satellite = sats.next();
+					if (satellite.isInView()) {
+						// is it really in view?
+						if (!satellitesInView.contains(satellite)) {
+							// nope, it's not
+							satellite.setNotInView();
+						}
+					}
+				}
+				// we are through
+				satellitesInView.clear();
 			}
 		} else if (fields[0].equals("GPRMC")) {
 			System.out.println("GPRMC (Recommended Minimum)");
