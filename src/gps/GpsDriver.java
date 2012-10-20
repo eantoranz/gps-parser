@@ -48,7 +48,7 @@ public class GpsDriver {
 			}
 		}).start();
 	}
-	
+
 	private void processInputLine(String inputLine) {
 		if (inputLine.length() == 0) {
 			System.err.println("Empty input line");
@@ -57,22 +57,43 @@ public class GpsDriver {
 			System.err.println("invalid input. Doesn't start with $ ("
 					+ inputLine + ")");
 		}
-		// FIXME incluir el checksum
-		
-		String [] fields = inputLine.substring(1).split(",");
+		int checksumPos = inputLine.indexOf('*');
+		if (checksumPos != -1) {
+			// FIXME has checksum, let's check it.... but, for now, let's just strip it
+			inputLine = inputLine.substring(0, checksumPos);
+		}
+
+		String[] fields = inputLine.substring(1).split(",");
 		if (fields[0].equals("GPGSA")) {
-			System.err.println("GPGSA");
+			System.out
+					.println("GPGSA (Dillution of precision / Active satellites)");
 			if (fields[2].equals("1")) {
-				System.err.println("Fix is not available");
+				System.err.println("\tFix is not available");
 			} else if (fields[2].equals("2")) {
-				System.out.println("2D");
+				System.out.println("\t2D");
 			} else if (fields[2].equals("3")) {
-				System.out.println("3D");
+				System.out.println("\t3D");
+			}
+		} else if (fields[0].equals("GPGSV")) {
+			System.out.println("GPGSV (Satellites in view)");
+			System.err.println(inputLine);
+			System.out.println("\tLine " + fields[2] + " of " + fields[1]);
+			System.out.println("\tSatellites in view: " + fields[3]);
+			// how many satellites are in the line?
+			int numberOfSatellites = (fields.length - 4) / 4;
+			System.out.println("\tThis line includes " + numberOfSatellites
+					+ " satellites");
+			for (int i = 0; i < numberOfSatellites; i++) {
+				System.out.println("\tSatellite PRN: " + fields[3 + (i * 4) + 1]);
+				System.out.println("\t\tElevation: " + fields[3 + (i * 4) + 2] + "°");
+				System.out.println("\t\tAzimuth: " + fields[3 + (i * 4) + 3] + "°");
+				System.out.println("\t\tSNR: " + fields[3 + (i + 1 ) * 4] + " db");
 			}
 		} else if (fields[0].equals("GPRMC")) {
-			System.err.println("GPRMC (Recommended Minimum)");
-			System.out.println("Time: " + fields[1] + " (UTC)");
-			System.out.println("Valid? " + (fields[2].equals("A") ? "Yes" : "No"));
+			System.out.println("GPRMC (Recommended Minimum)");
+			System.out.println("\tTime: " + fields[1] + " (UTC)");
+			System.out.println("\tValid? "
+					+ (fields[2].equals("A") ? "Yes" : "No"));
 		} else {
 			System.err.println("Unknown input: " + inputLine);
 		}
