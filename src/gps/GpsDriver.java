@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.TooManyListenersException;
 
-public class GpsDriver implements Runnable {
+public class GpsDriver {
 
 	private SerialPort port;
 	private BufferedReader input;
@@ -35,17 +35,18 @@ public class GpsDriver implements Runnable {
 		// now, let's set speed
 		port.setSerialPortParams(speed, 8, 1, SerialPort.PARITY_NONE);
 		input = new BufferedReader(new InputStreamReader(port.getInputStream()));
-		new Thread(this).start();
-	}
+		new Thread(new Runnable() {
 
-	public void run() {
-		while (true) {
-			try {
-				System.out.println(input.readLine());
-			} catch (IOException e) {
-				e.printStackTrace();
+			public void run() {
+				while (true) {
+					try {
+						System.out.println(input.readLine());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 			}
-		}
+		}).start();
 	}
 
 	public static void main(String[] args) {
