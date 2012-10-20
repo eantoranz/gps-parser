@@ -5,19 +5,21 @@ import gnu.io.CommPortIdentifier;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
 import gnu.io.UnsupportedCommOperationException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.TooManyListenersException;
 
-public class GpsDriver implements SerialPortEventListener {
+public class GpsDriver implements Runnable {
 
 	private SerialPort port;
+	private BufferedReader input;
 
 	public GpsDriver(String device, int speed) throws NoSuchPortException,
-			PortInUseException, IOException, UnsupportedCommOperationException, TooManyListenersException {
+			PortInUseException, IOException, UnsupportedCommOperationException,
+			TooManyListenersException {
 		CommPortIdentifier portId = CommPortIdentifier
 				.getPortIdentifier(device);
 
@@ -32,10 +34,19 @@ public class GpsDriver implements SerialPortEventListener {
 		port = (SerialPort) theCommPort;
 		// now, let's set speed
 		port.setSerialPortParams(speed, 8, 1, SerialPort.PARITY_NONE);
-		port.notifyOnDataAvailable(true);
-		port.addEventListener(this);
+		input = new BufferedReader(new InputStreamReader(port.getInputStream()));
+		new Thread(this).start();
 	}
-	
+
+	public void run() {
+		while (true) {
+			try {
+				System.out.println(input.readLine());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	public static void main(String[] args) {
 		try {
@@ -43,24 +54,6 @@ public class GpsDriver implements SerialPortEventListener {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
-		}
-	}
-
-
-	public void serialEvent(SerialPortEvent event) {
-		// there was an event at the serial port
-		byte chars [] = new byte[1024];
-		
-		if (event.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
-			// there's some data available at the port
-			try {
-				int bytesRead = port.getInputStream().read(chars, 0, 1024);
-				System.out.println("Read " + new String(chars));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else {
-			System.out.print("Some kind of port event: " + event);
 		}
 	}
 
