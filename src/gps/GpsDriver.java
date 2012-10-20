@@ -99,7 +99,8 @@ public class GpsDriver {
 			}
 			System.out.println("\tSatellites in view: " + fields[3]);
 			// how many satellites are in the line?
-			int numberOfSatellitesInLine = (fields.length - 4) / 4;
+			int numberOfSatellitesInLine = (fields.length
+					+ (inputLine.endsWith(",") ? 1 : 0) - 4) / 4;
 			System.out.println("\tThis line includes "
 					+ numberOfSatellitesInLine + " satellites");
 			Satellite satellite = null;
@@ -117,8 +118,13 @@ public class GpsDriver {
 				azimuth = fields[fieldIndex].length() == 0 ? -1 : Integer
 						.parseInt(fields[fieldIndex]);
 				fieldIndex++;
-				snr = fields[fieldIndex].length() == 0 ? -1 : Integer
-						.parseInt(fields[fieldIndex]);
+				if (fieldIndex >= fields.length) {
+					// probably the line ends up in ,
+					snr = -1;
+				} else {
+					snr = fields[fieldIndex].length() == 0 ? -1 : Integer
+							.parseInt(fields[fieldIndex]);
+				}
 				System.out.println("\tSatellite PRN: " + prn);
 				System.out.println("\t\tElevation: " + elevation + "°");
 				System.out.println("\t\tAzimuth: " + azimuth + "°");
