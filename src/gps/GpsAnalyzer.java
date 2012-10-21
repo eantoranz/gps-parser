@@ -48,18 +48,7 @@ public class GpsAnalyzer {
 
 	public GpsAnalyzer(BufferedReader theInput) {
 		this.input = theInput;
-		new Thread(new Runnable() {
-
-			public void run() {
-				while (true) {
-					try {
-						processInputLine(input.readLine());
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}).start();
+		new GpsThread(this, input).start();
 	}
 
 	private void processInputLine(String inputLine) {
@@ -214,6 +203,34 @@ public class GpsAnalyzer {
 			}
 		} else {
 			System.err.println("Unknown input: " + inputLine);
+		}
+	}
+
+	private static class GpsThread extends Thread {
+
+		private GpsAnalyzer analyzer;
+		private BufferedReader reader;
+
+		public GpsThread(GpsAnalyzer analyzer, BufferedReader reader) {
+			this.analyzer = analyzer;
+			this.reader = reader;
+		}
+
+		public void run() {
+			String inputLine = null;
+			while (true) {
+				try {
+					inputLine = reader.readLine();
+					if (inputLine == null) {
+						System.err.println("Reached EOS. Quitting analysis");
+						break;
+					}
+					analyzer.processInputLine(inputLine);
+				} catch (IOException e) {
+					System.err.println("Error reading from input stream");
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
