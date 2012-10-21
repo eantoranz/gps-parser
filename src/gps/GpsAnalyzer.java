@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-public class GpsReader {
+public class GpsAnalyzer {
 
 	private SerialPort port;
 	private BufferedReader input;
@@ -30,7 +30,7 @@ public class GpsReader {
 	 */
 	private ArrayList<Satellite> satellitesInView = new ArrayList<Satellite>();
 
-	public GpsReader(String device, int speed) throws NoSuchPortException,
+	public GpsAnalyzer(String device, int speed) throws NoSuchPortException,
 			PortInUseException, IOException, UnsupportedCommOperationException {
 		CommPortIdentifier portId = CommPortIdentifier
 				.getPortIdentifier(device);
@@ -186,7 +186,7 @@ public class GpsReader {
 
 	public static void main(String[] args) {
 		try {
-			new GpsReader("/dev/ttyUSB0", 4800);
+			new GpsAnalyzer("/dev/ttyUSB0", 4800);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
