@@ -6,13 +6,11 @@ package gps;
  */
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
-import gnu.io.UnsupportedCommOperationException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,8 +18,7 @@ import java.util.Iterator;
 
 public class GpsAnalyzer {
 
-	private SerialPort port;
-	private BufferedReader input;
+	private final BufferedReader input;
 
 	private HashMap<Integer, Satellite> satellites = new HashMap<Integer, Satellite>();
 	/**
@@ -29,24 +26,17 @@ public class GpsAnalyzer {
 	 * which are new and which are out of sight
 	 */
 	private ArrayList<Satellite> satellitesInView = new ArrayList<Satellite>();
+	
+	public GpsAnalyzer(InputStream theInput) {
+		this(new InputStreamReader(theInput));
+	}
+	
+	public GpsAnalyzer(InputStreamReader theInput) {
+		this(new BufferedReader(theInput));
+	}
 
-	public GpsAnalyzer(String device, int speed) throws NoSuchPortException,
-			PortInUseException, IOException, UnsupportedCommOperationException {
-		CommPortIdentifier portId = CommPortIdentifier
-				.getPortIdentifier(device);
-
-		// open and wait for max 2 seconds for port
-		CommPort theCommPort = portId.open(this.getClass().getName(), 2000);
-		// is it serial?
-		if (!(theCommPort instanceof SerialPort)) {
-			theCommPort.close();
-			throw new IOException("Device " + device + " is not a serial port");
-		}
-
-		port = (SerialPort) theCommPort;
-		// now, let's set speed
-		port.setSerialPortParams(speed, 8, 1, SerialPort.PARITY_NONE);
-		input = new BufferedReader(new InputStreamReader(port.getInputStream()));
+	public GpsAnalyzer(BufferedReader theInput) {
+		this.input = theInput;
 		new Thread(new Runnable() {
 
 			public void run() {
@@ -185,8 +175,24 @@ public class GpsAnalyzer {
 	}
 
 	public static void main(String[] args) {
+		String device = "/dev/ttyUSB0";
+		int speed = 4800;
 		try {
-			new GpsAnalyzer("/dev/ttyUSB0", 4800);
+			CommPortIdentifier portId = CommPortIdentifier
+					.getPortIdentifier(device);
+
+			// open and wait for max 2 seconds for port
+			CommPort theCommPort = portId.open(GpsAnalyzer.class.getName(), 2000);
+			// is it serial?
+			if (!(theCommPort instanceof SerialPort)) {
+				theCommPort.close();
+				throw new IOException("Device " + device + " is not a serial port");
+			}
+
+			SerialPort port = (SerialPort) theCommPort;
+			// now, let's set speed
+			port.setSerialPortParams(speed, 8, 1, SerialPort.PARITY_NONE);
+			new GpsAnalyzer(port.getInputStream());
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
