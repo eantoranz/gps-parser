@@ -79,7 +79,12 @@ public class GpsReader {
 		}
 
 		String[] fields = inputLine.substring(1).split(",");
-		if (fields[0].equals("GPGSA")) {
+		if (fields[0].equals("GPGGA")) {
+			// 3d location and accuracy data
+			System.out.println("GPGGA Fix information");
+		} else if (fields[0].equals("GPGLL")) {
+			System.out.println("GPGLL Geographic Latitude and Longitude");
+		} else if (fields[0].equals("GPGSA")) {
 			System.out
 					.println("GPGSA (Dillution of precision / Active satellites)");
 			if (fields[2].equals("1")) {
@@ -150,9 +155,9 @@ public class GpsReader {
 			// if it's the very last line, let's set satellites not in sight to
 			// (not in sight)
 			if (fields[2].equals(fields[1])) {
-				// satellites that are inview but are int in satellitesInView
-				// will be set
-				// as not in view
+				// satellites that are set as "inview" but are not in
+				// satellitesInView
+				// will be set as not in view
 				Iterator<Satellite> sats = satellites.values().iterator();
 				while (sats.hasNext()) {
 					satellite = sats.next();
@@ -167,6 +172,8 @@ public class GpsReader {
 				// we are through
 				satellitesInView.clear();
 			}
+		} else if (fields[0].equals("GPVTG")) {
+			System.out.println("GPVTG Vestor track and speed over ground");
 		} else if (fields[0].equals("GPRMC")) {
 			System.out.println("GPRMC (Recommended Minimum)");
 			System.out.println("\tTime: " + fields[1] + " (UTC)");
