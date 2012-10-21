@@ -8,11 +8,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TimeZone;
 
 public class GpsAnalyzer {
+
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
+			"ddMMyy HHmmss.SSS");
+	static {
+		// set the timezone for analysis of dates on UTC
+		dateFormat
+				.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+	}
 
 	private final BufferedReader input;
 
@@ -165,9 +178,9 @@ public class GpsAnalyzer {
 			System.out.println("GPRMC (Recommended Minimum)");
 			System.out.println("\tTime: " + fields[1] + " (UTC)");
 			boolean isValid = fields[2].equals("A");
-			System.out.println("\tValid? "
-					+ (isValid ? "Yes" : "No"));
+			System.out.println("\tValid? " + (isValid ? "Yes" : "No"));
 			if (isValid) {
+
 				String rawLat = fields[3];
 				String rawLong = fields[5];
 				if (rawLat.length() > 0 && rawLong.length() > 0) {
@@ -184,7 +197,18 @@ public class GpsAnalyzer {
 					if (fields[6].equals("W")) {
 						longitude *= -1;
 					}
-					lastValidReading = new LatLongReading(latitude, longitude);
+					Date readingDate = null;
+					try {
+						readingDate = dateFormat.parse(fields[9] + " "
+								+ fields[1]);
+					} catch (ParseException e) {
+						System.err.println("Couldn't parse reading date");
+						e.printStackTrace();
+						System.err.println("Will assume _now_ as reading date");
+						readingDate = new Date();
+					}
+					lastValidReading = new LatLongReading(latitude, longitude,
+							readingDate);
 					System.out.println("\t" + lastValidReading);
 				}
 			}
