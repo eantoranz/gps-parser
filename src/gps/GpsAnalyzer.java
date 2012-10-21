@@ -37,6 +37,8 @@ public class GpsAnalyzer {
 	private ArrayList<Satellite> satellitesInView = new ArrayList<Satellite>();
 
 	private LatLongReading lastValidReading;
+	private boolean gettingValidReadings = false;
+	private GpsThread gpsThread;
 
 	public GpsAnalyzer(InputStream theInput) {
 		this(new InputStreamReader(theInput));
@@ -48,7 +50,8 @@ public class GpsAnalyzer {
 
 	public GpsAnalyzer(BufferedReader theInput) {
 		this.input = theInput;
-		new GpsThread(this, input).start();
+		this.gpsThread = new GpsThread(this, input);
+		this.gpsThread.start();
 	}
 
 	private void processInputLine(String inputLine) {
@@ -63,8 +66,10 @@ public class GpsAnalyzer {
 		}
 		int checksumPos = inputLine.indexOf('*');
 		if (checksumPos != -1) {
-			// FIXME has checksum, let's check it.... but, for now, let's just
-			// strip it
+			/*
+			 * FIXME has checksum, let's check it.... but, for now, let's just
+			 * strip it
+			 */
 			inputLine = inputLine.substring(0, checksumPos);
 		}
 
@@ -125,9 +130,10 @@ public class GpsAnalyzer {
 				System.out.println("\t\tSNR: "
 						+ (snr == -1 ? "-" : (snr + " db")));
 
-				// satellite is obviously <b>in view</b>, right?
-				// if it's a new satellite, let's put it in the satellite map
-				// right away
+				/*
+				 * satellite is obviously <b>in view</b>, right? if it's a new
+				 * satellite, let's put it in the satellite map right away
+				 */
 				satellite = satellites.get(prn);
 				if (satellite == null) {
 					satellite = new Satellite(prn, elevation, azimuth, snr,
@@ -141,12 +147,15 @@ public class GpsAnalyzer {
 				satellitesInView.add(satellite);
 			}
 
-			// if it's the very last line, let's set satellites not in sight to
-			// (not in sight)
+			/*
+			 * if it's the very last line, let's set satellites not in sight to
+			 * (not in sight)
+			 */
 			if (fields[2].equals(fields[1])) {
-				// satellites that are set as "inview" but are not in
-				// satellitesInView
-				// will be set as not in view
+				/*
+				 * satellites that are set as "inview" but are not in
+				 * satellitesInView will be set as not in view
+				 */
 				Iterator<Satellite> sats = satellites.values().iterator();
 				while (sats.hasNext()) {
 					satellite = sats.next();
@@ -167,6 +176,7 @@ public class GpsAnalyzer {
 			System.out.println("GPRMC (Recommended Minimum)");
 			System.out.println("\tTime: " + fields[1] + " (UTC)");
 			boolean isValid = fields[2].equals("A");
+			this.gettingValidReadings = isValid;
 			System.out.println("\tValid? " + (isValid ? "Yes" : "No"));
 			if (isValid) {
 
@@ -206,14 +216,38 @@ public class GpsAnalyzer {
 		}
 	}
 
+	/**
+	 * Last reading that was reported as valid from GPS device (from RMC)
+	 * 
+	 * @return last valid reading
+	 */
+	public LatLongReading getLastValidReading() {
+		return this.lastValidReading;
+	}
+
+	/**
+	 * Indicate if we are getting valid readings at the moment (from RMC)
+	 * 
+	 * @return
+	 */
+	public boolean gettingValidReadings() {
+		return this.gettingValidReadings;
+	}
+
+	public boolean isFinished() {
+		return !this.gpsThread.isReading();
+	}
+
 	private static class GpsThread extends Thread {
 
 		private GpsAnalyzer analyzer;
 		private BufferedReader reader;
+		private boolean reading;
 
 		public GpsThread(GpsAnalyzer analyzer, BufferedReader reader) {
 			this.analyzer = analyzer;
 			this.reader = reader;
+			this.reading = true;
 		}
 
 		public void run() {
@@ -231,6 +265,11 @@ public class GpsAnalyzer {
 					e.printStackTrace();
 				}
 			}
+			reading = false;
+		}
+
+		public boolean isReading() {
+			return reading;
 		}
 	}
 

@@ -31,7 +31,8 @@ public class Satellite {
 	 *            Signal-to-Noise reduction. Values between 0-100. -1 means
 	 *            there's not signal
 	 */
-	public Satellite(int prn, int elevation, int azimuth, int snr, boolean inView) {
+	public Satellite(int prn, int elevation, int azimuth, int snr,
+			boolean inView) {
 		System.err.println("Creating satellite " + prn);
 		this.prn = prn;
 		this.elevation = elevation;
@@ -40,7 +41,7 @@ public class Satellite {
 		this.inView = inView;
 		this.lastUpdate = new Date();
 	}
-	
+
 	public void refresh(int elevation, int azimuth, int snr, boolean inView) {
 		System.out.println("Updating satellite " + prn);
 		this.elevation = elevation;
@@ -49,7 +50,7 @@ public class Satellite {
 		this.inView = inView;
 		this.lastUpdate = new Date();
 	}
-	
+
 	public boolean isInView() {
 		return inView;
 	}
