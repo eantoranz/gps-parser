@@ -4,10 +4,6 @@ package gps;
  * Copyright 2012 Edmundo Carmona Antoranz <eantoranz@gmail.com>
  * All rights reserved
  */
-import gnu.io.CommPort;
-import gnu.io.CommPortIdentifier;
-import gnu.io.SerialPort;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,11 +22,13 @@ public class GpsAnalyzer {
 	 * which are new and which are out of sight
 	 */
 	private ArrayList<Satellite> satellitesInView = new ArrayList<Satellite>();
-	
+
+	private LatLongReading lastValidReading;
+
 	public GpsAnalyzer(InputStream theInput) {
 		this(new InputStreamReader(theInput));
 	}
-	
+
 	public GpsAnalyzer(InputStreamReader theInput) {
 		this(new BufferedReader(theInput));
 	}
@@ -74,6 +72,19 @@ public class GpsAnalyzer {
 			System.out.println("GPGGA Fix information");
 		} else if (fields[0].equals("GPGLL")) {
 			System.out.println("GPGLL Geographic Latitude and Longitude");
+			String rawLat = fields[1];
+			String rawLong = fields[3];
+			if (rawLat.length() > 0 && rawLong.length() > 0) {
+				// we have a winner
+				int degrees = Integer.parseInt(rawLat.substring(0, 2));
+				double minutes = Double.parseDouble(rawLat.substring(2));
+				double latitude = degrees + minutes / 60;
+				degrees = Integer.parseInt(rawLong.substring(0, 3));
+				minutes = Double.parseDouble(rawLong.substring(3));
+				double longitude = degrees + minutes / 60;
+				lastValidReading = new LatLongReading(latitude, longitude);
+				System.out.println("\t" + lastValidReading);
+			}
 		} else if (fields[0].equals("GPGSA")) {
 			System.out
 					.println("GPGSA (Dillution of precision / Active satellites)");
@@ -86,7 +97,6 @@ public class GpsAnalyzer {
 			}
 		} else if (fields[0].equals("GPGSV")) {
 			System.out.println("GPGSV (Satellites in view)");
-			System.err.println(inputLine);
 			System.out.println("\tLine " + fields[2] + " of " + fields[1]);
 			if (fields[2].equals("1")) {
 				// it's the first line, let's clear/update satellitesInView
@@ -171,31 +181,6 @@ public class GpsAnalyzer {
 					+ (fields[2].equals("A") ? "Yes" : "No"));
 		} else {
 			System.err.println("Unknown input: " + inputLine);
-		}
-	}
-
-	public static void main(String[] args) {
-		String device = "/dev/ttyUSB0";
-		int speed = 4800;
-		try {
-			CommPortIdentifier portId = CommPortIdentifier
-					.getPortIdentifier(device);
-
-			// open and wait for max 2 seconds for port
-			CommPort theCommPort = portId.open(GpsAnalyzer.class.getName(), 2000);
-			// is it serial?
-			if (!(theCommPort instanceof SerialPort)) {
-				theCommPort.close();
-				throw new IOException("Device " + device + " is not a serial port");
-			}
-
-			SerialPort port = (SerialPort) theCommPort;
-			// now, let's set speed
-			port.setSerialPortParams(speed, 8, 1, SerialPort.PARITY_NONE);
-			new GpsAnalyzer(port.getInputStream());
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
 		}
 	}
 
