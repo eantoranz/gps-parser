@@ -17,9 +17,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.TooManyListenersException;
 
-public class GpsDriver {
+public class GpsReader {
 
 	private SerialPort port;
 	private BufferedReader input;
@@ -31,9 +30,8 @@ public class GpsDriver {
 	 */
 	private ArrayList<Satellite> satellitesInView = new ArrayList<Satellite>();
 
-	public GpsDriver(String device, int speed) throws NoSuchPortException,
-			PortInUseException, IOException, UnsupportedCommOperationException,
-			TooManyListenersException {
+	public GpsReader(String device, int speed) throws NoSuchPortException,
+			PortInUseException, IOException, UnsupportedCommOperationException {
 		CommPortIdentifier portId = CommPortIdentifier
 				.getPortIdentifier(device);
 
@@ -66,10 +64,12 @@ public class GpsDriver {
 	private void processInputLine(String inputLine) {
 		if (inputLine.length() == 0) {
 			System.err.println("Empty input line");
+			return;
 		}
 		if (inputLine.charAt(0) != '$') {
 			System.err.println("invalid input. Doesn't start with $ ("
 					+ inputLine + ")");
+			return;
 		}
 		int checksumPos = inputLine.indexOf('*');
 		if (checksumPos != -1) {
@@ -179,7 +179,7 @@ public class GpsDriver {
 
 	public static void main(String[] args) {
 		try {
-			new GpsDriver("/dev/ttyUSB0", 4800);
+			new GpsReader("/dev/ttyUSB0", 4800);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
