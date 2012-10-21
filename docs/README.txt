@@ -13,7 +13,10 @@ Please, don't assume this library is ready to go in production cause it's defini
 have a lot of things to research about NMEA 0183 parsing and how messages go along with each other.
 I could be as optimistic as to say that the basics are laid down.... and that's about it.
 
-How to use the library:
+REQUIREMENTS:
+- log4j
+
+HOW TO USE THE LIBRARY:
 
 Suppose you have a file (something like /home/myuser/gps_output.txt) that has output from a
 gps device. In order to process it (and for the sakes of processing given that there's no

@@ -17,7 +17,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TimeZone;
 
+import org.apache.log4j.Logger;
+
 public class GpsAnalyzer {
+
+	private static Logger log = Logger.getLogger(GpsAnalyzer.class);
 
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat(
 			"ddMMyy HHmmss.SSS");
@@ -56,12 +60,11 @@ public class GpsAnalyzer {
 
 	private void processInputLine(String inputLine) {
 		if (inputLine.length() == 0) {
-			System.err.println("Empty input line");
+			log.warn("Empty input line");
 			return;
 		}
 		if (inputLine.charAt(0) != '$') {
-			System.err.println("invalid input. Doesn't start with $ ("
-					+ inputLine + ")");
+			log.warn("invalid input. Doesn't start with $ (" + inputLine + ")");
 			return;
 		}
 		int checksumPos = inputLine.indexOf('*');
@@ -76,32 +79,31 @@ public class GpsAnalyzer {
 		String[] fields = inputLine.substring(1).split(",");
 		if (fields[0].equals("GPGGA")) {
 			// 3d location and accuracy data
-			System.out.println("GPGGA Fix information");
+			log.info("GPGGA Fix information");
 		} else if (fields[0].equals("GPGLL")) {
-			System.out.println("GPGLL Geographic Latitude and Longitude");
+			log.info("GPGLL Geographic Latitude and Longitude");
 		} else if (fields[0].equals("GPGSA")) {
-			System.out
-					.println("GPGSA (Dillution of precision / Active satellites)");
+			log.info("GPGSA (Dillution of precision / Active satellites)");
 			if (fields[2].equals("1")) {
-				System.err.println("\tFix is not available");
+				log.debug("\tFix is not available");
 			} else if (fields[2].equals("2")) {
-				System.out.println("\t2D");
+				log.debug("\t2D");
 			} else if (fields[2].equals("3")) {
-				System.out.println("\t3D");
+				log.debug("\t3D");
 			}
 		} else if (fields[0].equals("GPGSV")) {
-			System.out.println("GPGSV (Satellites in view)");
-			System.out.println("\tLine " + fields[2] + " of " + fields[1]);
+			log.info("GPGSV (Satellites in view)");
+			log.debug("\tLine " + fields[2] + " of " + fields[1]);
 			if (fields[2].equals("1")) {
 				// it's the first line, let's clear/update satellitesInView
 				satellitesInView.clear();
 			}
-			System.out.println("\tSatellites in view: " + fields[3]);
+			log.debug("\tSatellites in view: " + fields[3]);
 			// how many satellites are in the line?
 			int numberOfSatellitesInLine = (fields.length
 					+ (inputLine.endsWith(",") ? 1 : 0) - 4) / 4;
-			System.out.println("\tThis line includes "
-					+ numberOfSatellitesInLine + " satellites");
+			log.debug("\tThis line includes " + numberOfSatellitesInLine
+					+ " satellites");
 			Satellite satellite = null;
 			for (int i = 0; i < numberOfSatellitesInLine; i++) {
 				int prn = -1;
@@ -124,11 +126,10 @@ public class GpsAnalyzer {
 					snr = fields[fieldIndex].length() == 0 ? -1 : Integer
 							.parseInt(fields[fieldIndex]);
 				}
-				System.out.println("\tSatellite PRN: " + prn);
-				System.out.println("\t\tElevation: " + elevation + "°");
-				System.out.println("\t\tAzimuth: " + azimuth + "°");
-				System.out.println("\t\tSNR: "
-						+ (snr == -1 ? "-" : (snr + " db")));
+				log.debug("\tSatellite PRN: " + prn);
+				log.debug("\t\tElevation: " + elevation + "°");
+				log.debug("\t\tAzimuth: " + azimuth + "°");
+				log.debug("\t\tSNR: " + (snr == -1 ? "-" : (snr + " db")));
 
 				/*
 				 * satellite is obviously <b>in view</b>, right? if it's a new
@@ -171,13 +172,13 @@ public class GpsAnalyzer {
 				satellitesInView.clear();
 			}
 		} else if (fields[0].equals("GPVTG")) {
-			System.out.println("GPVTG Vestor track and speed over ground");
+			log.info("GPVTG Vector track and speed over ground");
 		} else if (fields[0].equals("GPRMC")) {
-			System.out.println("GPRMC (Recommended Minimum)");
-			System.out.println("\tTime: " + fields[1] + " (UTC)");
+			log.info("GPRMC (Recommended Minimum)");
+			log.debug("\tTime: " + fields[1] + " (UTC)");
 			boolean isValid = fields[2].equals("A");
 			this.gettingValidReadings = isValid;
-			System.out.println("\tValid? " + (isValid ? "Yes" : "No"));
+			log.debug("\tValid? " + (isValid ? "Yes" : "No"));
 			if (isValid) {
 
 				String rawLat = fields[3];
@@ -201,18 +202,17 @@ public class GpsAnalyzer {
 						readingDate = dateFormat.parse(fields[9] + " "
 								+ fields[1]);
 					} catch (ParseException e) {
-						System.err.println("Couldn't parse reading date");
-						e.printStackTrace();
-						System.err.println("Will assume _now_ as reading date");
+						log.error("Couldn't parse reading date", e);
+						log.debug("Will assume _now_ as reading date");
 						readingDate = new Date();
 					}
 					lastValidReading = new LatLongReading(latitude, longitude,
 							readingDate);
-					System.out.println("\t" + lastValidReading);
+					log.debug("\t" + lastValidReading);
 				}
 			}
 		} else {
-			System.err.println("Unknown input: " + inputLine);
+			log.warn("Unknown input: " + inputLine);
 		}
 	}
 
@@ -256,13 +256,12 @@ public class GpsAnalyzer {
 				try {
 					inputLine = reader.readLine();
 					if (inputLine == null) {
-						System.err.println("Reached EOS. Quitting analysis");
+						log.info("Reached EOS. Quitting analysis");
 						break;
 					}
 					analyzer.processInputLine(inputLine);
 				} catch (IOException e) {
-					System.err.println("Error reading from input stream");
-					e.printStackTrace();
+					log.error("Error reading from input stream", e);
 				}
 			}
 			reading = false;

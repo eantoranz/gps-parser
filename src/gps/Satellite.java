@@ -2,6 +2,8 @@ package gps;
 
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 /*
  * Copyright 2012 Edmundo Carmona Antoranz <eantoranz@gmail.com>
  * All rights reserved
@@ -14,6 +16,8 @@ import java.util.Date;
  * 
  */
 public class Satellite {
+
+	private static Logger log = Logger.getLogger(Satellite.class);
 
 	private int prn;
 	private int elevation;
@@ -33,7 +37,7 @@ public class Satellite {
 	 */
 	public Satellite(int prn, int elevation, int azimuth, int snr,
 			boolean inView) {
-		System.err.println("Creating satellite " + prn);
+		log.debug("Creating satellite " + prn);
 		this.prn = prn;
 		this.elevation = elevation;
 		this.azimuth = azimuth;
@@ -43,7 +47,7 @@ public class Satellite {
 	}
 
 	public void refresh(int elevation, int azimuth, int snr, boolean inView) {
-		System.out.println("Updating satellite " + prn);
+		log.debug("Updating satellite " + prn);
 		this.elevation = elevation;
 		this.azimuth = azimuth;
 		this.snr = snr;
@@ -59,7 +63,7 @@ public class Satellite {
 	 * set the satellite to not in view. Don't refresh last update date
 	 */
 	public void setNotInView() {
-		System.err.println("Setting satellite " + prn + " as not in view");
+		log.debug("Setting satellite " + prn + " as not in view");
 		this.inView = false;
 	}
 
