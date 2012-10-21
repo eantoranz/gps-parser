@@ -72,19 +72,6 @@ public class GpsAnalyzer {
 			System.out.println("GPGGA Fix information");
 		} else if (fields[0].equals("GPGLL")) {
 			System.out.println("GPGLL Geographic Latitude and Longitude");
-			String rawLat = fields[1];
-			String rawLong = fields[3];
-			if (rawLat.length() > 0 && rawLong.length() > 0) {
-				// we have a winner
-				int degrees = Integer.parseInt(rawLat.substring(0, 2));
-				double minutes = Double.parseDouble(rawLat.substring(2));
-				double latitude = degrees + minutes / 60;
-				degrees = Integer.parseInt(rawLong.substring(0, 3));
-				minutes = Double.parseDouble(rawLong.substring(3));
-				double longitude = degrees + minutes / 60;
-				lastValidReading = new LatLongReading(latitude, longitude);
-				System.out.println("\t" + lastValidReading);
-			}
 		} else if (fields[0].equals("GPGSA")) {
 			System.out
 					.println("GPGSA (Dillution of precision / Active satellites)");
@@ -177,8 +164,30 @@ public class GpsAnalyzer {
 		} else if (fields[0].equals("GPRMC")) {
 			System.out.println("GPRMC (Recommended Minimum)");
 			System.out.println("\tTime: " + fields[1] + " (UTC)");
+			boolean isValid = fields[2].equals("A");
 			System.out.println("\tValid? "
-					+ (fields[2].equals("A") ? "Yes" : "No"));
+					+ (isValid ? "Yes" : "No"));
+			if (isValid) {
+				String rawLat = fields[3];
+				String rawLong = fields[5];
+				if (rawLat.length() > 0 && rawLong.length() > 0) {
+					// we have a winner
+					int degrees = Integer.parseInt(rawLat.substring(0, 2));
+					double minutes = Double.parseDouble(rawLat.substring(2));
+					double latitude = degrees + minutes / 60;
+					if (fields[4].equals("S")) {
+						latitude *= -1;
+					}
+					degrees = Integer.parseInt(rawLong.substring(0, 3));
+					minutes = Double.parseDouble(rawLong.substring(3));
+					double longitude = degrees + minutes / 60;
+					if (fields[6].equals("W")) {
+						longitude *= -1;
+					}
+					lastValidReading = new LatLongReading(latitude, longitude);
+					System.out.println("\t" + lastValidReading);
+				}
+			}
 		} else {
 			System.err.println("Unknown input: " + inputLine);
 		}
