@@ -3,6 +3,7 @@ package gps;
 /*
  * Copyright 2012 Edmundo Carmona Antoranz <eantoranz@gmail.com>
  * All rights reserved
+ * Released under the terms of Affero GPLv3
  */
 import gps.event.GpsEvent;
 import gps.event.GPGSV;

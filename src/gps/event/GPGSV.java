@@ -7,6 +7,11 @@ import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
+/*
+ * Copyright 2012 Edmundo Carmona Antoranz
+ * All rights reserved
+ * Released under the terms of Affero GPLv3
+ */
 public class GPGSV extends GpsEvent {
 
 	private static Logger log = Logger.getLogger(GPGSV.class);

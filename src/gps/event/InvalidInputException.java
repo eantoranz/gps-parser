@@ -5,6 +5,7 @@ import java.io.IOException;
 /*
  * Copyright 2012 Edmundo Carmona Antoranz
  * All rights reserved
+ * Released under the terms of Affero GPLv3
  */
 
 /**
