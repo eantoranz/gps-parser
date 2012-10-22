@@ -7,6 +7,7 @@ package gps;
 import gps.event.AbstractEvent;
 import gps.event.GPGSV;
 import gps.event.GPRMC;
+import gps.event.GpsEventListener;
 import gps.event.InvalidInputException;
 
 import java.io.BufferedReader;
@@ -26,15 +27,18 @@ public class GpsAnalyzer {
 	private final BufferedReader input;
 
 	private HashMap<Integer, Satellite> satellites = new HashMap<Integer, Satellite>();
+
 	/**
 	 * Used when refreshing information about satellites to be able to tell
-	 * which are new and which are out of sight
+	 * which are out of sight
 	 */
 	private ArrayList<Satellite> satellitesInView = new ArrayList<Satellite>();
 
 	private LatLongReading lastValidReading;
 	private boolean gettingValidReadings = false;
 	private GpsThread gpsThread;
+
+	private HashMap<Class<?>, ArrayList<GpsEventListener>> listeners = new HashMap<Class<?>, ArrayList<GpsEventListener>>();
 
 	public GpsAnalyzer(InputStream theInput) {
 		this(new InputStreamReader(theInput));
@@ -47,19 +51,25 @@ public class GpsAnalyzer {
 	public GpsAnalyzer(BufferedReader theInput) {
 		this.input = theInput;
 		this.gpsThread = new GpsThread(this, input);
-		this.gpsThread.start();
 	}
 
-	private void processInputLine(String inputLine) throws InvalidInputException {
+	public void startAnalyzing() {
+		if (!this.gpsThread.isAlive()) {
+			this.gpsThread.start();
+		}
+	}
+
+	private void processInputLine(String inputLine)
+			throws InvalidInputException {
 		AbstractEvent event = AbstractEvent.createEvent(inputLine);
-		
+
 		if (event instanceof GPGSV) {
 			GPGSV gpgsv = (GPGSV) event;
 			if (gpgsv.getThisLine() == 1) {
 				// it's the first line, let's clear/update satellitesInView
 				satellitesInView.clear();
 			}
-			
+
 			Satellite satellite = null;
 			Iterator<Satellite> sats = gpgsv.getSatellites();
 			while (sats.hasNext()) {
@@ -94,9 +104,32 @@ public class GpsAnalyzer {
 		} else if (event instanceof GPRMC) {
 			GPRMC gprmc = (GPRMC) event;
 			if (gprmc.isValid()) {
-					lastValidReading = new LatLongReading(gprmc.getLatitude(), gprmc.getLongitude(),
-							gprmc.getReadingDate());
-					log.debug("\t" + lastValidReading);
+				lastValidReading = new LatLongReading(gprmc.getLatitude(),
+						gprmc.getLongitude(), gprmc.getReadingDate());
+				log.debug("\t" + lastValidReading);
+			}
+		}
+
+		// now we start telling about it to the listeners
+		notifyEvent(event);
+	}
+
+	private void notifyEvent(AbstractEvent event) {
+		// first, direct listeners
+		ArrayList<GpsEventListener> listeners = this.listeners.get(event
+				.getClass());
+		if (listeners != null) {
+			Iterator<GpsEventListener> iter = listeners.iterator();
+			while (iter.hasNext()) {
+				iter.next().eventFound(event);
+			}
+		}
+		// now for all kinds of events
+		listeners = this.listeners.get(AbstractEvent.class);
+		if (listeners != null) {
+			Iterator<GpsEventListener> iter = listeners.iterator();
+			while (iter.hasNext()) {
+				iter.next().eventFound(event);
 			}
 		}
 	}
@@ -121,6 +154,39 @@ public class GpsAnalyzer {
 
 	public boolean isFinished() {
 		return !this.gpsThread.isReading();
+	}
+
+	/**
+	 * Register a listener to listen to events of a certain kind
+	 * 
+	 * @param abstractEventClass
+	 *            If abstractEventClass is null, it means it will listen to
+	 *            every event. If a class is used, it has to be a class that
+	 *            extends {@link AbstractEvent}
+	 * @param listener
+	 *            Listener that will be reported about the event
+	 */
+	public void addGpsEventListener(Class<?> eventClass,
+			GpsEventListener listener) throws ClassCastException {
+		if (eventClass == null) {
+			// report for every kind of event available
+			eventClass = AbstractEvent.class;
+		} else {
+			if (!AbstractEvent.class.isAssignableFrom(eventClass)) {
+				throw new ClassCastException(eventClass.getName()
+						+ " is not a " + AbstractEvent.class.getName());
+			}
+		}
+		// it's all right.... let's save the listener
+		ArrayList<GpsEventListener> listeners = this.listeners.get(eventClass);
+		if (listeners == null) {
+			listeners = new ArrayList<GpsEventListener>();
+			this.listeners.put(eventClass, listeners);
+		}
+		// let's not duplicate
+		if (!listeners.contains(listener)) {
+			listeners.add(listener);
+		}
 	}
 
 	private static class GpsThread extends Thread {

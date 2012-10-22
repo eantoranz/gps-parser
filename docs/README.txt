@@ -22,7 +22,7 @@ Suppose you have a file (something like /home/myuser/gps_output.txt) that has ou
 gps device. In order to process it (and for the sakes of processing given that there's no
 feedback at the moment about the events found while processing) with the library, you would do something like:
 
-GpsAnalyzer analyzer = new GpsAnalyzer(new FileReader("/home/myuser/gps_output.txt"));
+GpsAnalyzer analyzer = new GpsAnalyzer(new FileReader("/home/myuser/gps_output.txt")).startAnalyzing();
 
 And that's it. It works on its own thread so you could ask it (while processing) if it's got a 
 valid reading (from last RMC processed) or what the last Valid reading is at the moment.
@@ -39,7 +39,24 @@ System.out.println("Last valid reading: " + analyzer.getLastValidReading());
 If you have an actual GpsDevice, you have to use the Comm or RXTX APIs (I'm testing
 with RXTX) to be able to get its inputStream and then:
 
-new GpsAnalyzer(port.getInputStream());
+new GpsAnalyzer(port.getInputStream()).startAnalyzing();
+
+
+LISTENING TO GPS EVENTS
+Now you can register to listen to GpsEvents as they are generated.
+Register an instance of GpsEventListener in order to be notified about them like this:
+
+GpsAnalyzer analyzer = new GpsAnalyzer(new FileReader("/home/myuser/gps_output.txt"));
+analyzer.addGpsEventListener(GPGLL.class, myGpsEventListener);
+analyzer.addGpsEventListener(GPRMC.class, myGpsEventListener);
+analyzer.startAnalyzing();
+
+If you want to be notified about all events, use null as the event type class:
+GpsAnalyzer analyzer = new GpsAnalyzer(new FileReader("/home/myuser/gps_output.txt"));
+analyzer.addGpsEventListener(null, myGpsEventListener);
+analyzer.addGpsEventListener(myGpsEventListener);
+analyzer.startAnalyzing();
+
 
 Pretty straight forward.
 
