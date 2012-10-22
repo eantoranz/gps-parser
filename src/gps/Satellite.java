@@ -54,6 +54,10 @@ public class Satellite {
 		this.inView = inView;
 		this.lastUpdate = new Date();
 	}
+	
+	public int getPRN() {
+		return this.prn;
+	}
 
 	public boolean isInView() {
 		return inView;
