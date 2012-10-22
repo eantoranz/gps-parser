@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
  * Copyright 2012 Edmundo Carmona Antoranz
  * All rights reserved
  */
-public class GPVTG extends AbstractEvent {
+public class GPVTG extends GpsEvent {
 	
 	private static Logger log = Logger.getLogger(GPVTG.class);
 	

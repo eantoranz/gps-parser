@@ -7,7 +7,7 @@ import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
-public class GPGSV extends AbstractEvent {
+public class GPGSV extends GpsEvent {
 
 	private static Logger log = Logger.getLogger(GPGSV.class);
 

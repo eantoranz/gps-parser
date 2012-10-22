@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
  * Copyright 2012 Edmundo Carmona Antoranz
  * All rights reserved
  */
-public class GPRMC extends AbstractEvent {
+public class GPRMC extends GpsEvent {
 
 	private static Logger log = Logger.getLogger(GPRMC.class);
 

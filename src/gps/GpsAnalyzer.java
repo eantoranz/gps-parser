@@ -4,7 +4,7 @@ package gps;
  * Copyright 2012 Edmundo Carmona Antoranz <eantoranz@gmail.com>
  * All rights reserved
  */
-import gps.event.AbstractEvent;
+import gps.event.GpsEvent;
 import gps.event.GPGSV;
 import gps.event.GPRMC;
 import gps.event.GpsEventListener;
@@ -61,7 +61,7 @@ public class GpsAnalyzer {
 
 	private void processInputLine(String inputLine)
 			throws InvalidInputException {
-		AbstractEvent event = AbstractEvent.createEvent(inputLine);
+		GpsEvent event = GpsEvent.createEvent(inputLine);
 
 		if (event instanceof GPGSV) {
 			GPGSV gpgsv = (GPGSV) event;
@@ -114,7 +114,7 @@ public class GpsAnalyzer {
 		notifyEvent(event);
 	}
 
-	private void notifyEvent(AbstractEvent event) {
+	private void notifyEvent(GpsEvent event) {
 		// first, direct listeners
 		ArrayList<GpsEventListener> listeners = this.listeners.get(event
 				.getClass());
@@ -125,7 +125,7 @@ public class GpsAnalyzer {
 			}
 		}
 		// now for all kinds of events
-		listeners = this.listeners.get(AbstractEvent.class);
+		listeners = this.listeners.get(GpsEvent.class);
 		if (listeners != null) {
 			Iterator<GpsEventListener> iter = listeners.iterator();
 			while (iter.hasNext()) {
@@ -162,20 +162,15 @@ public class GpsAnalyzer {
 	 * @param abstractEventClass
 	 *            If abstractEventClass is null, it means it will listen to
 	 *            every event. If a class is used, it has to be a class that
-	 *            extends {@link AbstractEvent}
+	 *            extends {@link GpsEvent}
 	 * @param listener
 	 *            Listener that will be reported about the event
 	 */
 	public void addGpsEventListener(Class<?> eventClass,
 			GpsEventListener listener) throws ClassCastException {
-		if (eventClass == null) {
-			// report for every kind of event available
-			eventClass = AbstractEvent.class;
-		} else {
-			if (!AbstractEvent.class.isAssignableFrom(eventClass)) {
-				throw new ClassCastException(eventClass.getName()
-						+ " is not a " + AbstractEvent.class.getName());
-			}
+		if (!GpsEvent.class.isAssignableFrom(eventClass)) {
+			throw new ClassCastException(eventClass.getName() + " is not a "
+					+ GpsEvent.class.getName());
 		}
 		// it's all right.... let's save the listener
 		ArrayList<GpsEventListener> listeners = this.listeners.get(eventClass);

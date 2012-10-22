@@ -51,10 +51,9 @@ analyzer.addGpsEventListener(GPGLL.class, myGpsEventListener);
 analyzer.addGpsEventListener(GPRMC.class, myGpsEventListener);
 analyzer.startAnalyzing();
 
-If you want to be notified about all events, use null as the event type class:
+If you want to be notified about all events, use GpsEvent as the event type class:
 GpsAnalyzer analyzer = new GpsAnalyzer(new FileReader("/home/myuser/gps_output.txt"));
-analyzer.addGpsEventListener(null, myGpsEventListener);
-analyzer.addGpsEventListener(myGpsEventListener);
+analyzer.addGpsEventListener(GpsEvent.class, myGpsEventListener);
 analyzer.startAnalyzing();
 
 

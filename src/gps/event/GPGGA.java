@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
  * All rights reserved
  */
 
-public class GPGGA extends AbstractEvent {
+public class GPGGA extends GpsEvent {
 
 	private static Logger log = Logger.getLogger(GPGGA.class);
 

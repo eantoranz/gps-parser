@@ -10,7 +10,7 @@ package gps.event;
  * @author antoranz
  *
  */
-public final class UnknownEvent extends AbstractEvent {
+public final class UnknownEvent extends GpsEvent {
 	
 	protected UnknownEvent(String [] primitives) {
 		super(primitives);

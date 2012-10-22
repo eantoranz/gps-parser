@@ -18,6 +18,6 @@ public interface GpsEventListener {
 	 * Process this event found by GpsAnalyzer
 	 * @param event
 	 */
-	public void eventFound(AbstractEvent event);
+	public void eventFound(GpsEvent event);
 
 }

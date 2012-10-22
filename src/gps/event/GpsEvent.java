@@ -12,11 +12,11 @@ package gps.event;
  * @author antoranz
  * 
  */
-public abstract class AbstractEvent {
+public abstract class GpsEvent {
 
 	protected String[] fields;
 
-	public static AbstractEvent createEvent(String inputLine)
+	public static GpsEvent createEvent(String inputLine)
 			throws InvalidInputException {
 		if (inputLine.length() == 0) {
 			throw new InvalidInputException("Empty input line");
@@ -52,7 +52,7 @@ public abstract class AbstractEvent {
 		}
 	}
 
-	protected AbstractEvent(String[] fields) {
+	protected GpsEvent(String[] fields) {
 		this.fields = fields;
 	}
 
