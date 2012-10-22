@@ -4,7 +4,7 @@ package gps.event;
 /*
  * Copyright 2012 Edmundo Carmona Antoranz <eantoranz@gmail.com>
  * All rights reserved
- * Released under the terms of Affero GPLv3
+ * Released under the terms of Mozilla Public License 2.0
  */
 
 /**
