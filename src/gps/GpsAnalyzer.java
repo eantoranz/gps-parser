@@ -21,7 +21,7 @@ import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
-public class GpsAnalyzer {
+public class GpsAnalyzer implements GpsEventListener {
 
 	private static Logger log = Logger.getLogger(GpsAnalyzer.class);
 
@@ -52,6 +52,8 @@ public class GpsAnalyzer {
 	public GpsAnalyzer(BufferedReader theInput) {
 		this.input = theInput;
 		this.gpsThread = new GpsThread(this, input);
+		this.addGpsEventListener(GPGSV.class, this);
+		this.addGpsEventListener(GPRMC.class, this);
 	}
 
 	public void startAnalyzing() {
@@ -60,10 +62,12 @@ public class GpsAnalyzer {
 		}
 	}
 
-	private void processInputLine(String inputLine)
-			throws InvalidInputException {
-		GpsEvent event = GpsEvent.createEvent(inputLine);
-
+	/**
+	 * We work as a GpsEventListener so we can process only those listener we
+	 * care about
+	 */
+	public void eventFound(GpsEvent event) {
+		log.debug("GpsAnalyzer is processing event " + event);
 		if (event instanceof GPGSV) {
 			GPGSV gpgsv = (GPGSV) event;
 			if (gpgsv.getThisLine() == 1) {
@@ -110,23 +114,43 @@ public class GpsAnalyzer {
 				log.debug("\t" + lastValidReading);
 			}
 		}
-
-		// now we start telling about it to the listeners
-		notifyEvent(event);
 	}
 
+	private void processInputLine(String inputLine)
+			throws InvalidInputException {
+		// now we start telling about it to the listeners (including ourselves)
+		notifyEvent(GpsEvent.createEvent(inputLine));
+	}
+
+	/**
+	 * Notify registered listeners about the newly created event
+	 * 
+	 * @param event
+	 */
 	private void notifyEvent(GpsEvent event) {
 		// first, direct listeners
-		ArrayList<GpsEventListener> listeners = this.listeners.get(event
+		ArrayList<GpsEventListener> directListeners = this.listeners.get(event
 				.getClass());
-		if (listeners != null) {
-			Iterator<GpsEventListener> iter = listeners.iterator();
+		if (directListeners != null) {
+			Iterator<GpsEventListener> iter = directListeners.iterator();
 			while (iter.hasNext()) {
 				iter.next().eventFound(event);
 			}
 		}
-		// now for all kinds of events
-		listeners = this.listeners.get(GpsEvent.class);
+
+		// now listeners for all kinds of events
+		/*
+		 * create a new instance so that we don't modify the listeners list when
+		 * we remove the duplicates
+		 */
+		ArrayList<GpsEventListener> listeners = new ArrayList<GpsEventListener>(
+				this.listeners.get(GpsEvent.class));
+
+		// remove duplicates
+		if (directListeners != null) {
+			listeners.removeAll(directListeners);
+		}
+
 		if (listeners != null) {
 			Iterator<GpsEventListener> iter = listeners.iterator();
 			while (iter.hasNext()) {
