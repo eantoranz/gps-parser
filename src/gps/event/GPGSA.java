@@ -13,7 +13,7 @@ public class GPGSA extends GpsEvent {
 	
 	protected GPGSA(String [] fields) {
 		super(fields);
-		log.info("GPGSA (Dillution of precision / Active satellites)");
+		log.debug("GPGSA (Dillution of precision / Active satellites)");
 		if (fields[2].equals("1")) {
 			log.debug("\tFix is not available");
 		} else if (fields[2].equals("2")) {

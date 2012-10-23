@@ -1,6 +1,5 @@
 package gps.event;
 
-
 /*
  * Copyright 2012 Edmundo Carmona Antoranz <eantoranz@gmail.com>
  * All rights reserved
@@ -55,6 +54,19 @@ public abstract class GpsEvent {
 
 	protected GpsEvent(String[] fields) {
 		this.fields = fields;
+	}
+
+	/**
+	 * Number of fields that make up the GPS event
+	 * 
+	 * @return
+	 */
+	public int getFieldsCount() {
+		return fields.length;
+	}
+
+	public String getField(int index) {
+		return fields[index];
 	}
 
 }

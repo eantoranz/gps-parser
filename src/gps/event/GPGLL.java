@@ -14,7 +14,7 @@ public class GPGLL extends GpsEvent {
 
 	protected GPGLL(String[] fields) {
 		super(fields);
-		log.info("GPGLL Geographic Latitude and Longitude");
+		log.debug("GPGLL Geographic Latitude and Longitude");
 	}
 
 }

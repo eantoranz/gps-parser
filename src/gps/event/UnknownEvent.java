@@ -13,8 +13,8 @@ package gps.event;
  */
 public final class UnknownEvent extends GpsEvent {
 	
-	protected UnknownEvent(String [] primitives) {
-		super(primitives);
+	protected UnknownEvent(String [] fields) {
+		super(fields);
 	}
 	
 }

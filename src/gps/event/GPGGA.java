@@ -14,7 +14,7 @@ public class GPGGA extends GpsEvent {
 
 	protected GPGGA(String[] fields) {
 		super(fields);
-		log.info("GPGGA Fix information (3d location and accuracy data)");
+		log.debug("GPGGA Fix information (3d location and accuracy data)");
 	}
 
 }

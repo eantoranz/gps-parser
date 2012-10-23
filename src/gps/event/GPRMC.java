@@ -33,7 +33,7 @@ public class GPRMC extends GpsEvent {
 	protected GPRMC(String[] fields) {
 		super(fields);
 
-		log.info("GPRMC (Recommended Minimum)");
+		log.debug("GPRMC (Recommended Minimum)");
 		log.debug("\tTime: " + fields[1] + " (UTC)");
 		this.isValid = fields[2].equals("A");
 		log.debug("\tValid? " + (isValid ? "Yes" : "No"));

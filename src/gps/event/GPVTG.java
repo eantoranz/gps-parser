@@ -8,12 +8,12 @@ import org.apache.log4j.Logger;
  * Released under the terms of Mozilla Public License 2.0
  */
 public class GPVTG extends GpsEvent {
-	
+
 	private static Logger log = Logger.getLogger(GPVTG.class);
-	
-	protected GPVTG(String [] fields) {
+
+	protected GPVTG(String[] fields) {
 		super(fields);
-		log.info("GPVTG Vector track and speed over ground");
+		log.debug("GPVTG Vector track and speed over ground");
 	}
 
 }

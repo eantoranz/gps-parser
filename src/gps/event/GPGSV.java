@@ -23,7 +23,7 @@ public class GPGSV extends GpsEvent {
 
 	protected GPGSV(String[] fields, boolean endsWithComa) {
 		super(fields);
-		log.info("GPGSV (Satellites in view)");
+		log.debug("GPGSV (Satellites in view)");
 
 		this.thisLine = Integer.parseInt(fields[2]);
 		this.totalLines = Integer.parseInt(fields[1]);
