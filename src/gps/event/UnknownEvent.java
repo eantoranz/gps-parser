@@ -8,13 +8,18 @@ package gps.event;
 
 /**
  * Unknown record
+ * 
  * @author antoranz
- *
+ * 
  */
 public final class UnknownEvent extends GpsEvent {
-	
-	protected UnknownEvent(String [] fields) {
+
+	protected UnknownEvent(String[] fields) {
 		super(fields);
 	}
-	
+
+	public String toString() {
+		return "Unknown Event (" + fields[0] + ")";
+	}
+
 }

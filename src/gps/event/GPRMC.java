@@ -35,8 +35,15 @@ public class GPRMC extends GpsEvent {
 
 		log.debug("GPRMC (Recommended Minimum)");
 		log.debug("\tTime: " + fields[1] + " (UTC)");
-		this.isValid = fields[2].equals("A");
 		log.debug("\tValid? " + (isValid ? "Yes" : "No"));
+		try {
+			this.readingDate = dateFormat.parse(fields[9] + " " + fields[1]);
+		} catch (ParseException e) {
+			log.error("Couldn't parse reading date", e);
+			log.debug("Will assume _now_ as reading date");
+			this.readingDate = new Date();
+		}
+		this.isValid = fields[2].equals("A");
 		if (this.isValid) {
 
 			String rawLat = fields[3];
@@ -54,15 +61,6 @@ public class GPRMC extends GpsEvent {
 				this.longitude = degrees + minutes / 60;
 				if (fields[6].equals("W")) {
 					this.longitude *= -1;
-				}
-				this.readingDate = null;
-				try {
-					this.readingDate = dateFormat.parse(fields[9] + " "
-							+ fields[1]);
-				} catch (ParseException e) {
-					log.error("Couldn't parse reading date", e);
-					log.debug("Will assume _now_ as reading date");
-					this.readingDate = new Date();
 				}
 			}
 		}
@@ -83,6 +81,18 @@ public class GPRMC extends GpsEvent {
 
 	public Date getReadingDate() {
 		return readingDate;
+	}
+
+	public String toString() {
+		return fields[0]
+				+ " "
+				+ (isValid ? "Valid " : "Not Valid")
+				+ " at "
+				+ readingDate
+				+ (this.isValid ? (" Lat: " + Math.abs(latitude)
+						+ (latitude < 0 ? "S" : "N") + " Long: "
+						+ Math.abs(longitude) + (longitude < 0 ? "W" : "E"))
+						: "");
 	}
 
 }

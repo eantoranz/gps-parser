@@ -68,5 +68,9 @@ public abstract class GpsEvent {
 	public String getField(int index) {
 		return fields[index];
 	}
+	
+	public String toString() {
+		return fields[0] + " (from GpsEvent)";
+	}
 
 }

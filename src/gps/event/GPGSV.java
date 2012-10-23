@@ -96,4 +96,9 @@ public class GPGSV extends GpsEvent {
 		return this.satellites.iterator();
 	}
 
+	public String toString() {
+		return fields[0] + " line " + this.thisLine + " of " + this.totalLines
+				+ ". Satellites in view (Total): " + this.satellitesInView;
+	}
+
 }
