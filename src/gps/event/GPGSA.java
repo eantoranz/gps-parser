@@ -61,7 +61,7 @@ public class GPGSA extends GpsEvent {
 		default:
 			temp.append("Unknown");
 		}
-		temp.append(" (" + this.mode + ") Fix Mode: ");
+		temp.append(" (" + fields[1] + ") Fix Mode: ");
 		switch (this.fixMode) {
 		case FIX_2D:
 			temp.append("2D");
@@ -75,7 +75,7 @@ public class GPGSA extends GpsEvent {
 		default:
 			temp.append("Unknown");
 		}
-		temp.append(" (" + this.fixMode + ")");
+		temp.append(" (" + fields[2] + ")");
 
 		return temp.toString();
 	}
