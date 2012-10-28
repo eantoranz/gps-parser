@@ -111,7 +111,7 @@ public class GPGGA extends GpsEvent {
 		default:
 			temp.append("Unknown");
 		}
-		temp.append(" (" + quality + ")");
+		temp.append(" (" + this.fields[6] + ")");
 		if (latitude != -1000 && longitude != -1000) {
 			temp.append(" Lat: " + Math.abs(latitude)
 					+ (latitude >= 0 ? 'N' : 'S') + " Long: "
