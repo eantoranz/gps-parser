@@ -79,4 +79,12 @@ public class GPGSA extends GpsEvent {
 
 		return temp.toString();
 	}
+
+	public int getMode() {
+		return this.mode;
+	}
+
+	public int getFixMode() {
+		return this.fixMode;
+	}
 }

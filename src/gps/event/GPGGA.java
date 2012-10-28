@@ -121,6 +121,18 @@ public class GPGGA extends GpsEvent {
 		return temp.toString();
 	}
 
+	public double getLatitude() {
+		return latitude;
+	}
+
+	public double getLongitude() {
+		return longitude;
+	}
+
+	public int getQuality() {
+		return this.quality;
+	}
+
 	public int getSatellitesTracked() {
 		return this.satellitesTracked;
 	}
