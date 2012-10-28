@@ -1,5 +1,7 @@
 package gps.event;
 
+import java.sql.Time;
+
 import org.apache.log4j.Logger;
 
 /*
@@ -12,9 +14,85 @@ public class GPGGA extends GpsEvent {
 
 	private static Logger log = Logger.getLogger(GPGGA.class);
 
+	public static final int QUALITY_INVALID = 0;
+	/**
+	 * GPS FIX (SPS)
+	 */
+	public static final int QUALITY_GPS = 1;
+	public static final int QUALITY_DGPS = 2;
+	public static final int QUALITY_PPS = 3;
+	/**
+	 * Realtime Kinematic
+	 */
+	public static final int QUALITY_RT_KINEMATIC = 4;
+	public static final int QUALITY_FLOAT_RTK = 5;
+	/**
+	 * estimated (dead reckoning) (2.3 feature)
+	 */
+	public static final int QUALITY_ESTIMATED = 6;
+	public static final int QUALITY_MANUAL_INPUT_MODE = 7;
+	public static final int QUALITY_SIMULATION_MODE = 8;
+	/**
+	 * No quality was specified
+	 */
+	public static final int QUALITY_EMPTY = -1;
+
+	private Time fixTime;
+	private int quality;
+
 	protected GPGGA(String[] fields) {
 		super(fields);
 		log.debug("GPGGA Fix information (3d location and accuracy data)");
+		this.fixTime = new Time(Integer.parseInt(fields[1].substring(0, 2)),
+				Integer.parseInt(fields[1].substring(2, 4)),
+				Integer.parseInt(fields[1].substring(4, 6)));
+		if (fields[6].length() == 0) {
+			this.quality = QUALITY_EMPTY;
+		} else {
+			this.quality = Integer.parseInt(fields[6]);
+		}
+	}
+
+	public String toString() {
+		StringBuffer temp = new StringBuffer("GGA Fix Time: " + fixTime
+				+ " quality: ");
+		switch (this.quality) {
+		case QUALITY_DGPS:
+			temp.append("DGPS");
+			break;
+		case QUALITY_EMPTY:
+			temp.append("EMPTY");
+			break;
+		case QUALITY_ESTIMATED:
+			temp.append("ESTIMATED");
+			break;
+		case QUALITY_FLOAT_RTK:
+			temp.append("Float RTK");
+			break;
+		case QUALITY_GPS:
+			temp.append("GPS");
+			break;
+		case QUALITY_INVALID:
+			temp.append("INVALID");
+			break;
+		case QUALITY_MANUAL_INPUT_MODE:
+			temp.append("Manual Input Mode");
+			break;
+		case QUALITY_PPS:
+			temp.append("PPS");
+			break;
+		case QUALITY_RT_KINEMATIC:
+			temp.append("RT Kinematic");
+			break;
+		case QUALITY_SIMULATION_MODE:
+			temp.append("Simulation Mode");
+			break;
+		default:
+			temp.append("Unknown");
+		}
+		temp.append(" (" + quality + ")");
+
+		return temp.toString();
 	}
 
 }
