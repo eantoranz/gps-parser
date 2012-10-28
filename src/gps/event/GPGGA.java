@@ -39,6 +39,8 @@ public class GPGGA extends GpsEvent {
 
 	private Time fixTime;
 	private int quality;
+	private double latitude;
+	private double longitude;
 
 	protected GPGGA(String[] fields) {
 		super(fields);
@@ -50,6 +52,23 @@ public class GPGGA extends GpsEvent {
 			this.quality = QUALITY_EMPTY;
 		} else {
 			this.quality = Integer.parseInt(fields[6]);
+		}
+		if (fields[2].length() > 0 && fields[3].length() > 0
+				&& fields[4].length() > 0 && fields[5].length() > 0) {
+			// got gps position... let.s parse it
+			latitude = Integer.parseInt(fields[2].substring(0, 2))
+					+ Double.parseDouble(fields[2].substring(2)) / 60;
+			if (fields[3].equals("S")) {
+				latitude *= -1;
+			}
+			longitude = Integer.parseInt(fields[4].substring(0, 3))
+					+ Double.parseDouble(fields[4].substring(3)) / 60;
+			if (fields[5].equals("W")) {
+				longitude *= -1;
+			}
+		} else {
+			latitude = -1000;
+			longitude = -1000;
 		}
 	}
 
@@ -91,6 +110,11 @@ public class GPGGA extends GpsEvent {
 			temp.append("Unknown");
 		}
 		temp.append(" (" + quality + ")");
+		if (latitude != -1000 && longitude != -1000) {
+			temp.append(" Lat: " + Math.abs(latitude)
+					+ (latitude >= 0 ? 'N' : 'S') + " Long: "
+					+ Math.abs(longitude) + (longitude >= 0 ? 'E' : 'W'));
+		}
 
 		return temp.toString();
 	}

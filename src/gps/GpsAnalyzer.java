@@ -143,18 +143,22 @@ public class GpsAnalyzer implements GpsEventListener {
 		 * create a new instance so that we don't modify the listeners list when
 		 * we remove the duplicates
 		 */
-		ArrayList<GpsEventListener> listeners = new ArrayList<GpsEventListener>(
-				this.listeners.get(GpsEvent.class));
-
-		// remove duplicates
-		if (directListeners != null) {
-			listeners.removeAll(directListeners);
-		}
-
+		ArrayList<GpsEventListener> listeners = this.listeners
+				.get(GpsEvent.class);
 		if (listeners != null) {
-			Iterator<GpsEventListener> iter = listeners.iterator();
-			while (iter.hasNext()) {
-				iter.next().eventFound(event);
+			// have to work on the clone
+			listeners = new ArrayList<GpsEventListener>(listeners);
+			
+			// remove duplicates
+			if (directListeners != null) {
+				listeners.removeAll(directListeners);
+			}
+
+			if (listeners != null) {
+				Iterator<GpsEventListener> iter = listeners.iterator();
+				while (iter.hasNext()) {
+					iter.next().eventFound(event);
+				}
 			}
 		}
 	}
