@@ -1,0 +1,33 @@
+<!--
+Copyright 2012 Edmundo Carmona Antoranz
+All rights reserved
+-->
+<project name="gps" default="compile">
+
+	<property file="build.properties" />
+
+	<target name="clean" description="clean all binary stuff from the project">
+		<echo>Deleting all jars and wars and .class</echo>
+		<delete includeemptydirs="true">
+			<fileset dir="bin" includes="**/*.class" />
+		</delete>
+		<delete>
+			<fileset dir="deploy" includes="*.jar,*.war" />
+		</delete>
+	</target>
+
+	<target name="compile" description="build java classes" depends="clean">
+		<echo>Compiling Stuff</echo>
+		<echo>log4j jar: ${jar_log4j}</echo>
+		<javac srcdir="src" destdir="bin" debug="true">
+		    <classpath location="${jar_log4j}" />
+		</javac>
+	</target>
+
+	<target name="jar" description="Create Jar" depends="compile">
+		<jar destfile="deploy/${ant.project.name}.jar" manifest="docs/samples/MANIFEST.MF">
+			<fileset dir="bin" includes="**/*.class" />
+		</jar>
+	</target>
+
+</project>

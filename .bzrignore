@@ -3,3 +3,5 @@
 .project
 bin/*
 *.class
+deploy/*
+build.properties
