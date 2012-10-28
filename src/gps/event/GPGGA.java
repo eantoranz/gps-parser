@@ -41,6 +41,7 @@ public class GPGGA extends GpsEvent {
 	private int quality;
 	private double latitude;
 	private double longitude;
+	private int satellitesTracked;
 
 	protected GPGGA(String[] fields) {
 		super(fields);
@@ -70,6 +71,7 @@ public class GPGGA extends GpsEvent {
 			latitude = -1000;
 			longitude = -1000;
 		}
+		this.satellitesTracked = Integer.parseInt(fields[7]);
 	}
 
 	public String toString() {
@@ -117,6 +119,10 @@ public class GPGGA extends GpsEvent {
 		}
 
 		return temp.toString();
+	}
+
+	public int getSatellitesTracked() {
+		return this.satellitesTracked;
 	}
 
 }
