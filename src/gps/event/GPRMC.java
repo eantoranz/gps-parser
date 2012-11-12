@@ -91,7 +91,7 @@ public class GPRMC extends GpsEvent {
 	public String toString() {
 		return fields[0]
 				+ " "
-				+ (isValid ? "Valid " : "Not Valid")
+				+ (isValid ? "Valid" : "Not Valid")
 				+ " at "
 				+ readingDate
 				+ (this.isValid ? (" Lat: " + Math.abs(latitude)
