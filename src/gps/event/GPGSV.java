@@ -12,6 +12,11 @@ import org.apache.log4j.Logger;
  * All rights reserved
  * Released under the terms of Mozilla Public License 2.0
  */
+
+/**
+ * Satellites in view
+ * 
+ */
 public class GPGSV extends GpsEvent {
 
 	private static Logger log = Logger.getLogger(GPGSV.class);

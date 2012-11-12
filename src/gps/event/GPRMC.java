@@ -13,6 +13,11 @@ import org.apache.log4j.Logger;
  * All rights reserved
  * Released under the terms of Mozilla Public License 2.0
  */
+
+/**
+ * Recommended minimum
+ * 
+ */
 public class GPRMC extends GpsEvent {
 
 	private static Logger log = Logger.getLogger(GPRMC.class);
