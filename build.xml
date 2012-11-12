@@ -25,7 +25,7 @@ All rights reserved
 	</target>
 
 	<target name="jar" description="Create Jar" depends="compile">
-		<jar destfile="deploy/${ant.project.name}.jar" manifest="docs/samples/MANIFEST.MF">
+		<jar destfile="deploy/${ant.project.name}.jar">
 			<fileset dir="bin" includes="**/*.class" />
 		</jar>
 	</target>
