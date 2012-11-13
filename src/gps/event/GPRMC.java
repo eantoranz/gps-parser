@@ -39,8 +39,6 @@ public class GPRMC extends GpsEvent {
 		super(fields);
 
 		log.debug("GPRMC (Recommended Minimum)");
-		log.debug("\tTime: " + fields[1] + " (UTC)");
-		log.debug("\tValid? " + (isValid ? "Yes" : "No"));
 		try {
 			this.readingDate = dateFormat.parse(fields[9] + " " + fields[1]);
 		} catch (ParseException e) {
@@ -69,7 +67,6 @@ public class GPRMC extends GpsEvent {
 				}
 			}
 		}
-
 	}
 
 	public boolean isValid() {

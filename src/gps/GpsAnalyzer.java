@@ -108,7 +108,8 @@ public class GpsAnalyzer implements GpsEventListener {
 			}
 		} else if (event instanceof GPRMC) {
 			GPRMC gprmc = (GPRMC) event;
-			if (gprmc.isValid()) {
+			gettingValidReadings = gprmc.isValid(); 
+			if (gettingValidReadings) {
 				lastValidReading = new LatLongReading(gprmc.getLatitude(),
 						gprmc.getLongitude(), gprmc.getReadingDate());
 				log.debug("\t" + lastValidReading);
