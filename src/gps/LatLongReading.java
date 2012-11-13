@@ -45,6 +45,10 @@ public class LatLongReading {
 	public double getLongitude() {
 		return this.longitude;
 	}
+	
+	public Date getReadingTime() {
+		return time;
+	}
 
 	public String toString() {
 		return "Lat: " + Math.abs(latitude) + (latitude > 0 ? 'N' : 'S')
