@@ -234,7 +234,7 @@ public class GpsAnalyzer implements GpsEventListener {
 				try {
 					inputLine = reader.readLine();
 					if (inputLine == null) {
-						analyzer.eventFound(new EndOfStream());
+						analyzer.notifyEvent(new EndOfStream());
 						reading = false;
 						break;
 					}
