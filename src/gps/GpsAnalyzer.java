@@ -7,10 +7,10 @@ package gps;
  */
 import gps.event.EndOfStream;
 import gps.event.GpsEvent;
+import gps.event.GpsEventListener;
 import gps.event.InvalidInputException;
 import gps.event.records.GPGSV;
 import gps.event.records.GPRMC;
-import gps.event.records.GpsEventListener;
 import gps.event.records.GpsInfoRecord;
 
 import java.io.BufferedReader;

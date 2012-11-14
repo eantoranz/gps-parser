@@ -1,6 +1,5 @@
-package gps.event.records;
+package gps.event;
 
-import gps.event.GpsEvent;
 
 /*
  * Copyright 2012 Edmundo Carmona Antoranz

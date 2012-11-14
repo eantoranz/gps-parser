@@ -1,7 +1,5 @@
 package gps.event.records;
 
-import java.awt.image.BufferStrategy;
-
 import org.apache.log4j.Logger;
 
 /*
