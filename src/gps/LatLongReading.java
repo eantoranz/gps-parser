@@ -20,6 +20,12 @@ public class LatLongReading {
 	private double longitude;
 	private Date time;
 
+	/**
+	 * A LatLongReading assuming reading time is <b>now</b>
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 */
 	public LatLongReading(double latitude, double longitude) {
 		this(latitude, longitude, new Date());
 	}
@@ -45,7 +51,7 @@ public class LatLongReading {
 	public double getLongitude() {
 		return this.longitude;
 	}
-	
+
 	public Date getReadingTime() {
 		return time;
 	}
