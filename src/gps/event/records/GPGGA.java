@@ -1,4 +1,4 @@
-package gps.event;
+package gps.event.records;
 
 import java.sql.Time;
 
@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
  * Released under the terms of Mozilla Public License 2.0
  */
 
-public class GPGGA extends GpsEvent {
+public class GPGGA extends GpsInfoRecord {
 
 	private static Logger log = Logger.getLogger(GPGGA.class);
 

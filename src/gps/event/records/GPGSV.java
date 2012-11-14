@@ -1,4 +1,4 @@
-package gps.event;
+package gps.event.records;
 
 import gps.Satellite;
 
@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
  * Satellites in view
  * 
  */
-public class GPGSV extends GpsEvent {
+public class GPGSV extends GpsInfoRecord {
 
 	private static Logger log = Logger.getLogger(GPGSV.class);
 

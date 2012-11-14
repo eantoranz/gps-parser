@@ -1,4 +1,4 @@
-package gps.event;
+package gps.event.records;
 
 import org.apache.log4j.Logger;
 
@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
  * Released under the terms of Mozilla Public License 2.0
  */
 
-public class GPGLL extends GpsEvent {
+public class GPGLL extends GpsInfoRecord {
 
 	private static Logger log = Logger.getLogger(GPGLL.class);
 

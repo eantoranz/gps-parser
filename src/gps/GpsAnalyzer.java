@@ -5,11 +5,13 @@ package gps;
  * All rights reserved
  * Released under the terms of Mozilla Public License 2.0
  */
+import gps.event.EndOfStream;
 import gps.event.GpsEvent;
-import gps.event.GPGSV;
-import gps.event.GPRMC;
-import gps.event.GpsEventListener;
 import gps.event.InvalidInputException;
+import gps.event.records.GPGSV;
+import gps.event.records.GPRMC;
+import gps.event.records.GpsEventListener;
+import gps.event.records.GpsInfoRecord;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -63,7 +65,7 @@ public class GpsAnalyzer implements GpsEventListener {
 	}
 
 	/**
-	 * We work as a GpsEventListener so we can process only those listener we
+	 * We work as a GpsEventListener so we can process only those listeners we
 	 * care about
 	 */
 	public void eventFound(GpsEvent event) {
@@ -108,7 +110,7 @@ public class GpsAnalyzer implements GpsEventListener {
 			}
 		} else if (event instanceof GPRMC) {
 			GPRMC gprmc = (GPRMC) event;
-			gettingValidReadings = gprmc.isValid(); 
+			gettingValidReadings = gprmc.isValid();
 			if (gettingValidReadings) {
 				lastValidReading = new LatLongReading(gprmc.getLatitude(),
 						gprmc.getLongitude(), gprmc.getReadingDate());
@@ -120,7 +122,7 @@ public class GpsAnalyzer implements GpsEventListener {
 	private void processInputLine(String inputLine)
 			throws InvalidInputException {
 		// now we start telling about it to the listeners (including ourselves)
-		notifyEvent(GpsEvent.createEvent(inputLine));
+		notifyEvent(GpsInfoRecord.createRecord(inputLine));
 	}
 
 	/**
@@ -149,7 +151,7 @@ public class GpsAnalyzer implements GpsEventListener {
 		if (listeners != null) {
 			// have to work on the clone
 			listeners = new ArrayList<GpsEventListener>(listeners);
-			
+
 			// remove duplicates
 			if (directListeners != null) {
 				listeners.removeAll(directListeners);
@@ -228,11 +230,12 @@ public class GpsAnalyzer implements GpsEventListener {
 
 		public void run() {
 			String inputLine = null;
-			while (true) {
+			while (reading) {
 				try {
 					inputLine = reader.readLine();
 					if (inputLine == null) {
-						log.info("Reached EOS. Quitting analysis");
+						analyzer.eventFound(new EndOfStream());
+						reading = false;
 						break;
 					}
 					analyzer.processInputLine(inputLine);
@@ -240,7 +243,6 @@ public class GpsAnalyzer implements GpsEventListener {
 					log.error("Error reading from input stream", e);
 				}
 			}
-			reading = false;
 		}
 
 		public boolean isReading() {

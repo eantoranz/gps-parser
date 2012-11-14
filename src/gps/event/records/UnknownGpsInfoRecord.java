@@ -1,4 +1,4 @@
-package gps.event;
+package gps.event.records;
 
 /*
  * Copyright 2012 Edmundo Carmona Antoranz
@@ -12,9 +12,9 @@ package gps.event;
  * @author antoranz
  * 
  */
-public final class UnknownEvent extends GpsEvent {
+public final class UnknownGpsInfoRecord extends GpsInfoRecord {
 
-	protected UnknownEvent(String[] fields) {
+	protected UnknownGpsInfoRecord(String[] fields) {
 		super(fields);
 	}
 

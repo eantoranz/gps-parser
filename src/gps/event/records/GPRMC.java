@@ -1,4 +1,4 @@
-package gps.event;
+package gps.event.records;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
  * Recommended minimum
  * 
  */
-public class GPRMC extends GpsEvent {
+public class GPRMC extends GpsInfoRecord {
 
 	private static Logger log = Logger.getLogger(GPRMC.class);
 
